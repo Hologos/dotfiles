@@ -1,0 +1,11 @@
+#!/bin/sh
+
+case "${DOTFILES_OS}" in
+    "${DOTFILES_OS_MACOS}")
+        open -na "PyCharm.app" --args "$@"
+    ;;
+
+    *)
+        ansi --red --bold "Unsupported OS."
+        exit 1
+esac
