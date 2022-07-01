@@ -115,6 +115,8 @@
         source "${autorun_file}"
     done
 
+    __prompt_set_shell_has_just_started_status
+
 #   -----------------------------
 #   99.  POST-LOAD ACTIONS
 #   -----------------------------

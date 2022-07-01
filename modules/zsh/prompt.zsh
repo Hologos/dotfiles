@@ -6,27 +6,19 @@
     DOTFILES_PROMPT_POSTEXEC_COMPONENTS=()
     DOTFILES_PROMPT_COMPONENT_LEFT="─["
     DOTFILES_PROMPT_COMPONENT_RIGHT="]"
+    DOTFILES_PROMPT_SHOW_POSTCMD_COMPONENTS=1
 
 #   ___ prompt generation ___
     function prompt_generate() {
         PS1=""
 
         # postexec components
-        PS1+=$'\n' # empty line
-        PS1+="┬"
-        PS1+=$'\n' # empty line
-        PS1+="└──"
-
         for component in ${DOTFILES_PROMPT_POSTEXEC_COMPONENTS[@]}; do
             PS1+="${component}"
         done
 
         # precmd components
-        PS1+=$'\n' # empty line
-        PS1+=$'\n' # empty line
-        PS1+=$'\n' # empty line
-        PS1+=$'\n' # empty line
-        PS1+=$'\n' # empty line
+        PS1+=$'\n'
         PS1+="┌──"
 
         for component in ${DOTFILES_PROMPT_PRECMD_COMPONENTS[@]}; do
@@ -40,7 +32,32 @@
     }
 
 #   ___ preexec prompt settings ___
+    function __prompt_gen_layout_pre() {
+        if ! __prompt_should_show_postcmd_components; then
+            return
+        fi
+
+        echo " " # empty line
+        echo "┬"
+        echo -n "└──"
+    }
+
+    function __prompt_gen_layout_post() {
+        if ! __prompt_should_show_postcmd_components; then
+            return
+        fi
+
+        echo " " # empty line
+        echo " " # empty line
+        echo " " # empty line
+        echo " " # empty line
+    }
+
     function __prompt_last_command_rc() {
+        if ! __prompt_should_show_postcmd_components; then
+            return
+        fi
+
         local last_rc="${?}"
 
         echo -n "${DOTFILES_PROMPT_COMPONENT_LEFT}"
@@ -58,6 +75,10 @@
     }
 
     function __prompt_last_command_elapsed_time() {
+        if ! __prompt_should_show_postcmd_components; then
+            return
+        fi
+
         if [[ -z "${prompt_elapsed_time+_}" ]]; then
             return
         fi
@@ -121,10 +142,41 @@
     }
 
     function __prompt_precmd() {
+        local last_cmd
+
         __last_command_elapsed_time
         __last_command_rc
 
         prompt_command_finish_time="$(date +'%H:%M:%S - %d.%m.%Y')"
+        last_cmd="$(fc -ln -1)"
+
+        if __prompt_has_shell_just_started; then
+            prompt_set_postcmd_components_visibility 0
+        elif [[ "${last_cmd}" =~ clear[[:space:]]*$ ]]; then
+            prompt_set_postcmd_components_visibility 0
+        else
+            prompt_set_postcmd_components_visibility 1
+        fi
+    }
+
+    function __prompt_should_show_postcmd_components() {
+        if [[ ${DOTFILES_PROMPT_SHOW_POSTCMD_COMPONENTS} -eq 0 ]]; then
+            return 1
+        else
+            return 0
+        fi
+    }
+
+    function __prompt_has_shell_just_started() {
+        if [[ ${DOTFILES_PROMPT_SHOW_POSTCMD_COMPONENTS} -eq -1 ]]; then
+            return 0
+        fi
+
+        return 1
+    }
+
+    function __prompt_set_shell_has_just_started_status() {
+        prompt_set_postcmd_components_visibility -1
     }
 
 #   ___ setting preexec & precmd hooks ___
@@ -162,8 +214,10 @@
     prompt_component_precmd_append "${dotfiles_prompt_pwd}"
 
 #   ___ postexec components ___
+    prompt_postexec_component_append '$(__prompt_gen_layout_pre)'
     prompt_postexec_component_append '$(__prompt_last_command_rc)'
     prompt_postexec_component_append '$(__prompt_last_command_elapsed_time)'
+    prompt_postexec_component_append '$(__prompt_gen_layout_post)'
 
 #   ___ generate the prompt ___
     prompt_generate

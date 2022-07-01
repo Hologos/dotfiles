@@ -69,6 +69,7 @@ These helper functions are available to you by default:
 - check_sw_prerequisites()
 - prompt_component_precmd_append()
 - prompt_component_postexec_append()
+- prompt_set_postcmd_components_visibility()
 - is_dark_mode_on()
 - load_theme_colors()
 - require_version()

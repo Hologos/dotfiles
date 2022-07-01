@@ -335,6 +335,14 @@ function prompt_postexec_component_append() {
     DOTFILES_PROMPT_POSTEXEC_COMPONENTS+=("${component}")
 }
 
+
+function prompt_set_postcmd_components_visibility() {
+    local prompt_status="${1}"
+
+    DOTFILES_PROMPT_SHOW_POSTCMD_COMPONENTS="${prompt_status}"
+}
+
+
 function crontab_apply() {
     if ! is_installed "crontab"; then
         fail "crontab is not installed, aborting"
