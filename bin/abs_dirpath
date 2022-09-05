@@ -1,0 +1,31 @@
+#! /usr/bin/env bash
+
+function get_abs_dirpath() {
+    local source="${1}"
+    local abs_dirpath
+
+    abs_dirpath="$( cd "$( dirname "$( [[ -L "${source}" ]] && readlink "${source}" || echo "${source}" )" )" && pwd )" || { \
+        >&2 echo
+        >&2 echo "Cannot determine real path of the script."
+        exit 1
+    }
+
+    printf '%s' "${abs_dirpath}"
+}
+
+function cd_into_abs_dirpath() {
+    local source="${1}"
+    local absolute_dirpath
+
+    absolute_dirpath="$(get_abs_dirpath "${source}")" || \
+        {
+            >&2 echo "Can't resolve absolute dirpath from [${source}]."
+            exit 1
+        }
+
+    cd "${absolute_dirpath}" || \
+        {
+            >&2 echo "Cannot cd into [${absolute_dirpath}]."
+            exit 1
+        }
+}
