@@ -1,0 +1,12 @@
+#!/bin/sh
+
+case "${DOTFILES_OS}" in
+    "${DOTFILES_OS_MACOS}")
+        open -na "IntelliJ IDEA.app" --args "$@" || \
+            open -na "IntelliJ IDEA CE.app" --args "$@"
+    ;;
+
+    *)
+        ansi --red --bold "Unsupported OS."
+        exit 1
+esac
