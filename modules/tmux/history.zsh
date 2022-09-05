@@ -22,3 +22,5 @@
 
     echo "Recovering shell history for pane ID ${TMUX_SWP_ID}..."
     update_tmux_histfile_variable
+    __tmux_remove_histfile_markfile
+    #reload_tmux_shell_history
