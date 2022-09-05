@@ -6,10 +6,11 @@
         return
     fi
 
-    # inside tmux?
-    if [[ -z ${TMUX+x} ]]; then
-        return
+    if ! is_inside_tmux; then
+        return;
     fi
+
+    source "${DOTFILES_MODULES_ROOT}/tmux/history-functions.zsh"
 
     export TMUX_HISTDIR="${HOME}/.zhist"
 
@@ -17,7 +18,7 @@
         mkdir "${TMUX_HISTDIR}"
     fi
 
-    TMUX_SWP_ID="$(tmux display -pt "${TMUX_PANE:?}" '#{session_name}:#{window_index}:#{pane_index}')"
+    export TMUX_SWP_ID="$(get_tmux_swp_id)"
 
     echo "Recovering shell history for pane ID ${TMUX_SWP_ID}..."
-    export HISTFILE="${TMUX_HISTDIR}/.zhistory_${TMUX_SWP_ID}"
+    update_tmux_histfile_variable
