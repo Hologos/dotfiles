@@ -8,6 +8,22 @@
     DOTFILES_PROMPT_COMPONENT_RIGHT="]"
     DOTFILES_PROMPT_SHOW_POSTCMD_COMPONENTS=1
 
+    _LOOP_COUNTER=0
+    while true; do
+        DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH="/tmp/dotfiles_last_rc.${RANDOM}.stored"
+
+        if [[ $(( _LOOP_COUNTER++ )) -gt 50 ]]; then
+            >&2 echo
+            >&2 ansi --bold --color="${FMT_RED}" "ERROR: cannot generate new [${DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH}]."
+            >&2 echo
+            break
+        fi
+
+        if [[ ! -e "${DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH}" ]]; then
+            break
+        fi
+    done
+
 #   ___ prompt generation ___
     function prompt_generate() {
         PS1=""
@@ -53,12 +69,18 @@
         echo " " # empty line
     }
 
-    function __prompt_last_command_rc() {
+    funtion __prompt_store_last_command_rc() {
+        local last_rc="${?}"
+
+        printf '%i' "${last_rc}" > "${DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH}"
+    }
+
+    function __prompt_show_last_command_rc() {
         if ! __prompt_should_show_postcmd_components; then
             return
         fi
 
-        local last_rc="${?}"
+        local last_rc="$(< "${DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH}")"
 
         echo -n "${DOTFILES_PROMPT_COMPONENT_LEFT}"
         ansi --no-newline --bold "rc: "
@@ -214,8 +236,9 @@
     prompt_component_precmd_append "${dotfiles_prompt_pwd}"
 
 #   ___ postexec components ___
+    prompt_postexec_component_append '$(__prompt_store_last_command_rc)'
     prompt_postexec_component_append '$(__prompt_gen_layout_pre)'
-    prompt_postexec_component_append '$(__prompt_last_command_rc)'
+    prompt_postexec_component_append '$(__prompt_show_last_command_rc)'
     prompt_postexec_component_append '$(__prompt_last_command_elapsed_time)'
     prompt_postexec_component_append '$(__prompt_gen_layout_post)'
 
