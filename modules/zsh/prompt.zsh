@@ -7,22 +7,7 @@
     DOTFILES_PROMPT_COMPONENT_LEFT="─["
     DOTFILES_PROMPT_COMPONENT_RIGHT="]"
     DOTFILES_PROMPT_SHOW_POSTCMD_COMPONENTS=1
-
-    _LOOP_COUNTER=0
-    while true; do
-        DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH="/tmp/dotfiles_last_rc.${RANDOM}.stored"
-
-        if [[ $(( _LOOP_COUNTER++ )) -gt 50 ]]; then
-            >&2 echo
-            >&2 ansi --bold --color="${FMT_RED}" "ERROR: cannot generate new [${DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH}]."
-            >&2 echo
-            break
-        fi
-
-        if [[ ! -e "${DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH}" ]]; then
-            break
-        fi
-    done
+    DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH="/tmp/dotfiles_last_rc.$$.stored"
 
 #   ___ prompt generation ___
     function prompt_generate() {
