@@ -15,10 +15,11 @@ function usage() {
     local fmt_reset="$(ansi --reset-attrib)"
 
     >&2 echo
-    >&2 echo "Usage: $0 <source-dirpath> <target-versioned-dirname>"
+    >&2 echo "Usage: $0 <source-dirpath> [<target-versioned-dirname>]"
     >&2 echo
     >&2 echo "    ${fmt_bold}<source-dirpath>${fmt_reset}"
     >&2 echo "        Dirpath of software you want to install."
+    >&2 echo "        If dirname is in sw-name-X.Y.Z format, second argument can be ommited."
     >&2 echo
     >&2 echo "    ${fmt_bold}<target-versioned-dirname>${fmt_reset}"
     >&2 echo "        Dirname in format sw-name-X.Y.Z, where X.Y.Z is version in semver format (eg: tpcp-1.0.1)."
@@ -28,8 +29,12 @@ function usage() {
 }
 
 if [[ $# -ne 2 ]]; then
-    usage
-    exit 1
+    if [[ $# -ne 1 ]]; then
+        usage
+        exit 1
+    fi
+
+    set -- "${1}" "$(basename "${1}")"
 fi
 
 echo
@@ -48,10 +53,43 @@ else
     success "Variable ISW_SW_DIRPATH exists."
 fi
 
+echo "› extracting software name and version"
+
 source_dirpath="${1}"
 source_dirname="$(basename "${source_dirpath}")"
 target_dirname="${2}"
+
+# shellcheck disable=SC2015
+version="$(printf '%s' "${target_dirname}" | \
+    grep --only-matching -E 'v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[a-zA-Z0-9][-a-zA-Z.0-9]*)?(\+[a-zA-Z0-9][-a-zA-Z.0-9]*)?$')" \
+    && success "Version successfully extracted [${version}]." \
+    || {
+        fail "Version is not in semver format."
+        exit 1
+    }
+
+version_slen="$(( ${#version} + 2 ))"
+
+# shellcheck disable=SC2015
+sw_name="$(printf '%s' "${target_dirname}" | rev | cut -c "${version_slen}"- | rev)" \
+    && success "Software name successfully extracted [${sw_name}]." \
+    || {
+        fail "Software name could not be extracted."
+        exit 1
+    }
+
+if [[ "${version}" =~ ^v ]]; then
+    version="${version:1}"
+fi
+
+echo "sw_name=[${sw_name}]"
+echo "version=[${version}]"
+target_dirname="${sw_name}-${version}"
 target_dirpath="${ISW_SW_DIRPATH}/${__SW_LIB_DIR}/${target_dirname}"
+echo "target_dirname=[${target_dirname}]"
+echo "target_dirpath=[${target_dirpath}]"
+
+target_link_dirpath="${ISW_SW_DIRPATH}/${__SW_LIB_DIR}/${sw_name}"
 
 echo "› source directory existance"
 
@@ -91,29 +129,6 @@ if [[ ! -w "${ISW_SW_DIRPATH}" ]]; then
 else
     success "Software directory [${ISW_SW_DIRPATH}] is writable."
 fi
-
-echo "› extracting software name and version"
-
-# shellcheck disable=SC2015
-version="$(printf '%s' "${target_dirname}" | \
-    grep --only-matching -E '(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[a-zA-Z0-9][-a-zA-Z.0-9]*)?(\+[a-zA-Z0-9][-a-zA-Z.0-9]*)?$')" \
-    && success "Version successfully extracted [${version}]." \
-    || {
-        fail "Version is not in semver format."
-        exit 1
-    }
-
-version_slen="$(( ${#version} + 2 ))"
-
-# shellcheck disable=SC2015
-sw_name="$(printf '%s' "${target_dirname}" | rev | cut -c "${version_slen}"- | rev)" \
-    && success "Software name successfully extracted [${sw_name}]." \
-    || {
-        fail "Software name could not be extracted."
-        exit 1
-    }
-
-target_link_dirpath="${ISW_SW_DIRPATH}/${__SW_LIB_DIR}/${sw_name}"
 
 echo "› checking if creating symlink is possible"
 
