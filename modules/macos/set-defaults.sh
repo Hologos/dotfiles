@@ -42,6 +42,9 @@ defaults write NSGlobalDomain NSAutomaticSpellingCorrectionEnabled -bool false
 echo "  › Avoid the creation of .DS_Store files on network volumes"
 defaults write com.apple.desktopservices DSDontWriteNetworkStores -bool true
 
+echo "  › Avoid the creation of .DS_Store files on USB drives"
+defaults write com.apple.desktopservices DSDontWriteUSBStores -bool true
+
 echo "  › Show battery percent"
 defaults write com.apple.menuextra.battery ShowPercent -bool true
 
