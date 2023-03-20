@@ -55,5 +55,8 @@
         "markdown",
         "latex",
         "plaintext"
-    ]
+    ],
+    "files.associations": {
+        "*.gcode": "gcode"
+    }
 }
