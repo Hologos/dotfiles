@@ -8,7 +8,7 @@
 
     case "${DOTFILES_OS}" in
         "${DOTFILES_OS_MACOS}")
-            [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+            [[ -f "${HOME}/.fzf.zsh" ]] && source "${HOME}/.fzf.zsh"
         ;;
 
         "${DOTFILES_OS_LINUX}")
