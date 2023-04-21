@@ -88,7 +88,6 @@ if [[ "${force_mode}" -eq 1 ]] || [[ "${downloaded_version}" != "${installed_ver
     # run generic install script
     . "${DOTFILES_INSTALLATION_ROOT}/install.sh"
 else
-    # TODO: maybe add force mode?
     echo "› no new changes downloaded, skipping installation steps"
 fi
 
