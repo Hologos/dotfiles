@@ -54,7 +54,7 @@
         echo " " # empty line
     }
 
-    funtion __prompt_store_last_command_rc() {
+    function __prompt_store_last_command_rc() {
         local last_rc="${?}"
 
         printf '%i' "${last_rc}" > "${DOTFILES_PROMPT_LAST_RC_STORE_FILEPATH}"
