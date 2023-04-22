@@ -3,6 +3,7 @@
 echo
 echo "Running generic installer"
 
-for module_install_file in $(find "${DOTFILES_MODULES_ROOT}" -name "install.sh"); do
-    . "${module_install_file}"
-done
+find "${DOTFILES_MODULES_ROOT}" -name "install.sh" |
+    while read -r module_install_file; do
+        . "${module_install_file}"
+    done
