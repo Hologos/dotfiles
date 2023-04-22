@@ -14,7 +14,7 @@
         PS1=""
 
         # postexec components
-        for component in ${DOTFILES_PROMPT_POSTEXEC_COMPONENTS[@]}; do
+        for component in "${DOTFILES_PROMPT_POSTEXEC_COMPONENTS[@]}"; do
             PS1+="${component}"
         done
 
@@ -22,7 +22,7 @@
         PS1+=$'\n'
         PS1+="┌──"
 
-        for component in ${DOTFILES_PROMPT_PRECMD_COMPONENTS[@]}; do
+        for component in "${DOTFILES_PROMPT_PRECMD_COMPONENTS[@]}"; do
             PS1+="${component}"
         done
 

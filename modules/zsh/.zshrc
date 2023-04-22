@@ -64,33 +64,38 @@
 #   -----------------------------
 
 #   ___ load environmental variables from all envvars.zsh files ___
-    for envvar_file in $(find "${DOTFILES_MODULES_ROOT}" -name "envvars.zsh"); do
-        source "${envvar_file}"
-    done
+    find "${DOTFILES_MODULES_ROOT}" -name "envvars.zsh" |
+        while read -r __source_file; do
+            source "${__source_file}"
+        done
 
 #   ___ load paths from all paths.zsh files ___
-    for path_file in $(find "${DOTFILES_MODULES_ROOT}" -name "paths.zsh"); do
-        source "${path_file}"
-    done
+    find "${DOTFILES_MODULES_ROOT}" -name "paths.zsh" |
+        while read -r __source_file; do
+            source "${__source_file}"
+        done
 
 #   ___ load aliases from all aliases.zsh files ___
-    for alias_file in $(find "${DOTFILES_MODULES_ROOT}" -name "aliases.zsh"); do
-        source "${alias_file}"
-    done
+    find "${DOTFILES_MODULES_ROOT}" -name "aliases.zsh" |
+        while read -r __source_file; do
+            source "${__source_file}"
+        done
 
 #   ___ load history from all history.zsh files ___
     source "${DOTFILES_MODULES_ROOT}/zsh/history.zsh"
 
-    for history_file in $(find "${DOTFILES_MODULES_ROOT}" -name "history.zsh" | grep -v -E 'zsh\/history\.zsh$'); do
-        source "${history_file}"
-    done
+    find "${DOTFILES_MODULES_ROOT}" -name "history.zsh" | grep -v -E 'zsh\/history\.zsh$' |
+        while read -r __source_file; do
+            source "${__source_file}"
+        done
 
 #   ___ load prompts from all prompt.zsh files ___
     source "${DOTFILES_MODULES_ROOT}/zsh/prompt.zsh"
 
-    for prompt_file in $(find "${DOTFILES_MODULES_ROOT}" -name "prompt.zsh" | grep -v -E 'zsh\/prompt\.zsh$'); do
-        source "${prompt_file}"
-    done
+    find "${DOTFILES_MODULES_ROOT}" -name "prompt.zsh" | grep -v -E 'zsh\/prompt\.zsh$' |
+        while read -r __source_file; do
+            source "${__source_file}"
+        done
 
 #   -----------------------------
 #   9.  LOAD LOCAL CONFIG
@@ -111,9 +116,10 @@
 #   -----------------------------
 
 #   ___ run all autorun.zsh files ___
-    for autorun_file in $(find "${DOTFILES_MODULES_ROOT}" -name "autorun.zsh"); do
-        source "${autorun_file}"
-    done
+    find "${DOTFILES_MODULES_ROOT}" -name "autorun.zsh" |
+        while read -r __source_file; do
+            source "${__source_file}"
+        done
 
     __prompt_set_shell_has_just_started_status
 
