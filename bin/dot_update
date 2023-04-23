@@ -15,6 +15,7 @@ export DOTFILES_MODULES_ROOT="${DOTFILES_ROOT}/modules"
 export DOTFILES_INSTALLATION_ROOT="${DOTFILES_ROOT}/installation"
 
 # create update progress file
+echo "› creating update-in-progress mark file"
 touch "${DOTFILES_ROOT}/.dot_update"
 
 echo "› cding inside dotfiles directory"
@@ -95,4 +96,5 @@ echo "› registering last update"
 git config --global dotfiles.lastupdate "$(date +'%d.%m.%Y %H:%M')"
 
 # remove update progress file
+echo "› removing update-in-progress mark file"
 rm -f "${DOTFILES_ROOT}/.dot_update"
