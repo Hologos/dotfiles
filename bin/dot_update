@@ -87,6 +87,7 @@ fi
 
 if [[ "${force_mode}" -eq 1 ]] || [[ "${downloaded_version}" != "${installed_version}" ]]; then
     # run generic install script
+    echo "› running generic installer"
     . "${DOTFILES_INSTALLATION_ROOT}/install.sh"
 else
     echo "› no new changes downloaded, skipping installation steps"

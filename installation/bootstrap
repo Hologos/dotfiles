@@ -27,6 +27,7 @@ echo "› checking prerequisites"
 . "${DOTFILES_INSTALLATION_ROOT}/check-prerequisites.sh"
 
 # run generic install script
+echo "› running generic installer"
 . "${DOTFILES_INSTALLATION_ROOT}/install.sh"
 
 # set zsh as default shell
