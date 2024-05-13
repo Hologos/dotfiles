@@ -3,7 +3,7 @@
 #   -----------------------------
 
 #   ___ failed to load shell detection ___
-    FAILED_TO_LOAD_SHELL_MARKFILE_FILEPATH="${HOME}/.zsh_failed"
+    FAILED_TO_LOAD_SHELL_MARKFILE_FILEPATH="${HOME}/.zsh_failed.$$"
     export FAILED_TO_LOAD_SHELL_IGNOREFILE_FILEPATH="${HOME}/.zsh_failed_ignore"
 
     # to prevent false positive when restoring via tmux-resurrect,
@@ -19,6 +19,7 @@
         >&2 echo
         >&2 echo "To load everything, remove mark file '${FAILED_TO_LOAD_SHELL_MARKFILE_FILEPATH}' and run zsh."
         >&2 echo
+        >&2 ls -la "${FAILED_TO_LOAD_SHELL_IGNOREFILE_FILEPATH}" "${FAILED_TO_LOAD_SHELL_MARKFILE_FILEPATH}"
 
         # stop this script
         return
