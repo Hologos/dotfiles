@@ -13,16 +13,14 @@
 
     "extensions.autoUpdate": false,
     "extensions.ignoreRecommendations": true,
-
-    "workbench.activityBar.visible": true,
     "workbench.sideBar.location": "left",
     "workbench.startupEditor": "newUntitledFile",
     "workbench.statusBar.visible": true,
 
     "terminal.integrated.shell.osx": "/opt/homebrew/bin/zsh",
-    "terminal.integrated.shellArgs.osx": [ "--login" ],
-
-    "window.zoomLevel": 0,
+    "terminal.integrated.shellArgs.osx": [
+        "--login"
+    ],
 
     /* LaTex settings */
     "latex-workshop.latex.autoBuild.onSave.enabled": false,
@@ -59,5 +57,8 @@
     "files.associations": {
         "*.gcode": "gcode"
     },
-    "workbench.colorTheme": "Visual Studio Dark"
+    "workbench.colorTheme": "Visual Studio Dark",
+    "git.openRepositoryInParentFolders": "never",
+    "asciidoc.extensions.enableKroki": true,
+    "print.krokiUrl": "http://localhost:8090"
 }
