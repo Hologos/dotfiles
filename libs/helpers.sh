@@ -137,15 +137,10 @@ function link_file() {
 function os_detection() {
     export DOTFILES_OS="undefined"
 
-    readonly DOTFILES_OS_MACOS="macos"
-    readonly DOTFILES_OS_LINUX="linux"
-    readonly DOTFILES_OS_AIX="aix"
-    readonly DOTFILES_OS_WINDOWS="windows"
-
-    export DOTFILES_OS_MACOS
-    export DOTFILES_OS_LINUX
-    export DOTFILES_OS_AIX
-    export DOTFILES_OS_WINDOWS
+    export readonly DOTFILES_OS_MACOS="macos"
+    export readonly DOTFILES_OS_LINUX="linux"
+    export readonly DOTFILES_OS_AIX="aix"
+    export readonly DOTFILES_OS_WINDOWS="windows"
 
     case "$(uname -s)" in
         Darwin) DOTFILES_OS="${DOTFILES_OS_MACOS}" ;;
