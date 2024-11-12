@@ -26,6 +26,10 @@ os_detection
 echo "› checking prerequisites"
 . "${DOTFILES_INSTALLATION_ROOT}/check-prerequisites.sh"
 
+# set unattended installation status
+echo "› setting unattended installation status"
+__set_unattended_installation_status 1
+
 # run generic install script
 echo "› running generic installer"
 . "${DOTFILES_INSTALLATION_ROOT}/install.sh"

@@ -411,3 +411,15 @@ function load_theme_colors() {
 
     return ${has_loading_failed}
 }
+
+function __set_unattended_installation_status() {
+    __dotfiles_unattended_installation="${1}"
+}
+
+function __is_unattended_installation() {
+    if [[ "${__dotfiles_unattended_installation:=0}" -eq 0 ]]; then
+        return 1
+    fi
+
+    return 0
+}
