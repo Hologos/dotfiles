@@ -352,6 +352,7 @@ function crontab_apply() {
     local crontab_command="${1}"
     local grep_match="${2}"
 
+    # TODO: doplnit konstantu
     (
         crontab -l | grep -v "${grep_match}"
         echo "${crontab_command}"

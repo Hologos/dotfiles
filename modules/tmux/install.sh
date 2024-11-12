@@ -18,6 +18,8 @@ if ! is_installed "tmux"; then
     return
 fi
 
+# TODO: změnit user za dotfiles_user
+# TODO: myslet, že někdo může migrovat ze starší verze!
 crontab_apply \
     "* * * * * '${DOTFILES_ROOT}/bin/tmux_set_theme' cron >> /tmp/tmux_set_theme.${USER}.log 2>&1" \
     "tmux_set_theme"

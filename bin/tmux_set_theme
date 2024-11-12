@@ -19,6 +19,7 @@ source "${DOTFILES_LIBS_ROOT}/helpers.sh"
 echo "› detecting OS"
 os_detection
 
+# TODO: doplnit konstantu DOTFILES_USERNAME
 tmux_theme_cache_location="/tmp/tmux_theme_name.${USER}"
 
 if [[ "${CALLER}" == "conf" ]]; then

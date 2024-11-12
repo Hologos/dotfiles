@@ -43,11 +43,13 @@ echo "› setting ${DOTFILES_SHELL} as default shell"
 case "${DOTFILES_OS}" in
     "${DOTFILES_OS_MACOS}"|"${DOTFILES_OS_LINUX}")
         echo
+        # TODO: doplnit konstantu DOTFILES_USERNAME
         chsh -s "${DOTFILES_SHELL}" "${USER}" 1>/dev/null
     ;;
 
     "${DOTFILES_OS_AIX}")
         echo
+        # TODO: doplnit konstantu DOTFILES_USERNAME
         chsh "${USER}" "${DOTFILES_SHELL}" 1>/dev/null
     ;;
 

@@ -15,6 +15,7 @@ export DOTFILES_MODULES_ROOT="${DOTFILES_ROOT}/modules"
 export DOTFILES_INSTALLATION_ROOT="${DOTFILES_ROOT}/installation"
 
 # create update progress file
+# TODO: tady do konstant? používá se v pluginu prompt na detekci chyby
 echo "› creating update-in-progress mark file"
 touch "${DOTFILES_ROOT}/.dot_update"
 
@@ -25,6 +26,7 @@ cd "${DOTFILES_ROOT}" || { >&2 echo "Cannot cd into ${DOTFILES_ROOT}."; exit 1; 
 PATH="/opt/homebrew/bin:$(command -p getconf PATH)"
 
 # load custom config if any
+# TODO: možná přesunout až po loadu?
 if [[ -r ~/.localrc ]]; then
     echo "› loading custom config ~/.localrc"
     . ~/.localrc
@@ -53,6 +55,13 @@ installed_version="$(git rev-parse --short HEAD)"
 echo "› getting branch name"
 branch_name="$(git rev-parse --abbrev-ref HEAD)"
 
+## TODO: sem možná přidat kontrolu na změnu v tomto souboru
+#
+#        git fetch updates
+#        git diff updates/${branch_name} HEAD -- bin/dot_update (a nebo nazev tohodle skriptu, tzn basename(${0}))
+#
+#        pokud je detekována změna - ukončit a vyžádat si manuální spuštění? nebo tak něco
+
 # update repo
 echo "› git update"
 echo
@@ -70,12 +79,18 @@ fi
 echo "› getting downloaded version"
 downloaded_version="$(git rev-parse --short HEAD)"
 
+# TODO: nejspíš zopakovat vše, co bylo nahoře.. tzn načíst znovu všechno, očekovat prerekvizity, atp!!
+
 # load libraries
 echo "› loading libraries"
 
 . "${DOTFILES_LIBS_ROOT}/fidian/ansi/ansi"
 . "${DOTFILES_LIBS_ROOT}/formatting.sh"
 . "${DOTFILES_LIBS_ROOT}/helpers.sh"
+
+# TODO: myslet, že někdo může migrovat ze starší verze!
+# načíst konstanty?
+# možná detekovat změnu v dot_update a pokud ano, tak nejak spustit novou verzi?
 
 # detect OS
 echo "› detecting OS"
@@ -87,6 +102,16 @@ force_mode=0
 if [[ ${#} -eq 1 ]] && [[ "${1}" =~ ^(-f|--force)$ ]]; then
     force_mode=1
 fi
+
+# TODO: přidat migrační mechanismus.. kdyz není potřeba provést migraci, tak by to bylo unattended, jinak selhat a oznamit
+#       přidat do prompt blikací !!MANUAL UPDATE REQUIRED!!
+#       např: adresář, kde se bude hledat mark file, jkamile zmizí, tak update skončí chybou
+#       a musí se udělat přes touch mark-file-cislo-migrace
+#       - vyresit ale, ze pro cistou instalaci se musi ignorovat nebo tak neco
+#
+# TODO: migrační mechanismus musí volat __set_unattended_installation_status()
+
+# TODO: force mod nepřebije unattended mód!!
 
 if [[ "${force_mode}" -eq 1 ]] || [[ "${downloaded_version}" != "${installed_version}" ]]; then
     # run generic install script

@@ -32,6 +32,7 @@ zsh # or just close and open your terminal again.
 
 ## Post-install configuration
 
+TODO: přesunout do sekce DOCS
 **Note:** If you want to adopt these dotfiles for yourself, check `ADOPTION.md` file for instructions.
 
 Personal and device specific configuration should be located in `~/.localrc`.
@@ -71,6 +72,10 @@ Personal and device specific configuration should be located in `~/.localrc`.
      export CEZ_USERNAME="<company-username>"
 ```
 
+doplnit info a constatnts souboru
+
 ## Docs
 
 If you are interested why I made some decisions or if you want to create your own module, you should read [PHILOSOPHY.md](PHILOSOPHY.md) document.
+
+TODO: doplnit link na adoption

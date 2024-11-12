@@ -17,3 +17,5 @@ Replace repository link with the one of your fork.
 ### modules/ssh/config.d/cez
 
 Replace username with your own company username.
+
+TODO: doplnit info o konstantach

@@ -6,6 +6,12 @@ echo "Running bootstrap"
 # setup envvar
 echo "› setting up environmental variables"
 
+# TODO: tady to nechat načíst z globálního configu
+
+# TODO: doptat se na kontanty a udělat to interaktivně?
+#       možná je jen vypsat a nechat potvrdit?
+#       asi dát to speciálního skriptu, ať to tu není zasraný
+
 export DOTFILES_ROOT="${HOME}/.dotfiles"
 export DOTFILES_LIBS_ROOT="${DOTFILES_ROOT}/libs"
 export DOTFILES_MODULES_ROOT="${DOTFILES_ROOT}/modules"
