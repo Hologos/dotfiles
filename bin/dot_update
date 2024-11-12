@@ -50,10 +50,13 @@ git remote add updates "https://github.com/Hologos/dotfiles.git" 2>/dev/null
 echo "› getting installed version"
 installed_version="$(git rev-parse --short HEAD)"
 
+echo "› getting branch name"
+branch_name="$(git rev-parse --abbrev-ref HEAD)"
+
 # update repo
 echo "› git update"
 echo
-git pull --tags --rebase --stat updates "$(git rev-parse --abbrev-ref HEAD)"
+git pull --tags --rebase --stat updates "${branch_name}"
 rc=${?}
 echo
 
