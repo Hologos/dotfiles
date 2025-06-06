@@ -154,7 +154,7 @@ function build_tmux_layout() {
 
     local last_session_name=""
     local last_window_index=""
-    local last_pane_name=""
+    local last_pane_index=""
     echo
     echo
 
@@ -176,11 +176,11 @@ function build_tmux_layout() {
 
         if [[ "${last_session_name}" == "" ]] && \
         [[ "${last_window_index}" == "" ]] &&
-        [[ "${last_pane_name}" == "" ]]; then
+        [[ "${last_pane_index}" == "" ]]; then
             # rename window and pane
             last_session_name="${session_name}"
             last_window_index="${window_index}"
-            last_pane_name="${pane_name}"
+            last_pane_index="${pane_index}"
 
             echo "session: ${session_name}"
             echo "  window: ${window_name}"
@@ -194,7 +194,7 @@ function build_tmux_layout() {
         if [[ "${session_name}" != "${last_session_name}" ]]; then
             last_session_name="${session_name}"
             last_window_index="${window_index}"
-            last_pane_name="${pane_name}"
+            last_pane_index="${pane_index}"
 
             echo "session: ${session_name}"
             echo "  window: ${window_name}"
@@ -207,7 +207,7 @@ function build_tmux_layout() {
 
         if [[ "${window_index}" != "${last_window_index}" ]]; then
             last_window_index="${window_index}"
-            last_pane_name="${pane_name}"
+            last_pane_index="${pane_index}"
 
             echo "  window: ${window_name}"
             echo "    pane: ${pane_name} -> ${pane_dir}"
@@ -216,8 +216,8 @@ function build_tmux_layout() {
             tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}.1"
         fi
 
-        if [[ "${pane_name}" != "${last_pane_name}" ]]; then
-            last_pane_name="${pane_name}"
+        if [[ "${pane_index}" != "${last_pane_index}" ]]; then
+            last_pane_index="${pane_index}"
             echo "    pane: ${pane_name} -> ${pane_dir}"
 
             tmux split-window -t "${session_name}:${window_index}" -c "${pane_dir} -f"
