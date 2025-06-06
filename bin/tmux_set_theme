@@ -143,10 +143,10 @@ tmux set -g status-bg "${DOTFILES_THEME_BG}"
 tmux set -g status-left "$(_ubox '#S') " # session name (eg: 0)
 
 _tmux_status_right=""
-# _tmux_status_right+=" $(_utbox '#{sysstat_cpu}')" # eg: CPU: 5%
-# _tmux_status_right+=" $(_utbox '#{sysstat_mem}')" # eg: MEM: 50%
-# _tmux_status_right+=" $(_utbox '#{sysstat_swap}')" # eg: SWAP: 0%
-# _tmux_status_right+=" $(_ubox 'LOAD: #{sysstat_loadavg}')" # eg: LOAD: 0.3 0.2 0.15
+_tmux_status_right+=" $(_utbox '#{sysstat_cpu}')" # eg: CPU: 5%
+_tmux_status_right+=" $(_utbox '#{sysstat_mem}')" # eg: MEM: 50%
+_tmux_status_right+=" $(_utbox '#{sysstat_swap}')" # eg: SWAP: 0%
+_tmux_status_right+=" $(_ubox 'LOAD: #{sysstat_loadavg}')" # eg: LOAD: 0.3 0.2 0.15
 _tmux_status_right+=" $(_ubox '%d.%m.%Y %R')" # datetime
 
 tmux set -g status-right "${_tmux_status_right}"
