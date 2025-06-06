@@ -19,6 +19,7 @@ function usage() {
     >&2 echo "        Options are:"
     >&2 echo "            build <filepath>                  Build layout from file (sessions, windows, panes)."
     >&2 echo "            analyse <filepath>                Analyse layout of a file (sessions, windows, panes)."
+    >&2 echo "            compare <filepath1> <filepath2>   Compare two files."
     >&2 echo
     >&2 echo "    ${fmt_bold}<tmux-resurrect-file-filepath>${fmt_reset}"
     >&2 echo "        Filepath to tmux-resurrect file."
@@ -33,6 +34,9 @@ function usage() {
     >&2 echo
     >&2 echo "    ${fmt_bold}Analysing layout from a file${fmt_reset}"
     >&2 echo "    reconstruct_tmux_resurrect analyze ~/.tmux/resurrect/ok_tmux_resurrect_20250530T091102.txt"
+    >&2 echo
+    >&2 echo "    ${fmt_bold}Comparing two layouts from files${fmt_reset}"
+    >&2 echo "    reconstruct_tmux_resurrect compare ~/.tmux/resurrect/ok_tmux_resurrect_20250530T091102.txt ~/.tmux/resurrect/tmux_resurrect_20250606T091102.txt"
     >&2 echo
     >&2 echo "    ${fmt_bold}Debugging analysis of a layout from a file${fmt_reset}"
     >&2 echo "    DEBUG=1 reconstruct_tmux_resurrect analyze ~/.tmux/resurrect/ok_tmux_resurrect_20250530T091102.txt"
@@ -292,6 +296,45 @@ case "${action}" in
         fi
         process_tmux_resurrect_file "${resurrect_filepath}" sessions_windows_panes sessions_windows_names
         process_tmux_layout "${action}" sessions_windows_panes sessions_windows_names
+    ;;
+
+    compare)
+        if [[ ${#} -ne 3 ]]; then
+            log_error "Two filepaths to resurrect files has to be passed."
+            usage
+            terminate
+        fi
+
+        resurrect_filepath1="${2}"
+        resurrect_filepath2="${3}"
+
+        declare -A sessions_windows_panes1
+        declare -A sessions_windows_names1
+        declare -A sessions_windows_panes2
+        declare -A sessions_windows_names2
+
+        process_tmux_resurrect_file "${resurrect_filepath1}" sessions_windows_panes1 sessions_windows_names1
+        process_tmux_resurrect_file "${resurrect_filepath2}" sessions_windows_panes2 sessions_windows_names2
+
+        echo
+        echo "Missing objects in [${resurrect_filepath2}]."
+
+        for key in $(printf "%s\n" "${!sessions_windows_panes1[@]}" | sort -t'|' -k1,1 -k2,2n -k3,3n); do
+            if [[ ! -v sessions_windows_panes2["$key"] ]]; then
+                echo "Key [${key}] doesn't exist in the other layout."
+                echo "    ${sessions_windows_panes1["$key"]}"
+            fi
+        done
+
+        echo
+        echo "Missing objects in [${resurrect_filepath1}]."
+
+        for key in $(printf "%s\n" "${!sessions_windows_panes2[@]}" | sort -t'|' -k1,1 -k2,2n -k3,3n); do
+            if [[ ! -v sessions_windows_panes1["$key"] ]]; then
+                echo "Key [${key}] doesn't exist in the other layout."
+                echo "    ${sessions_windows_panes2["$key"]}"
+            fi
+        done
     ;;
 
     *)
