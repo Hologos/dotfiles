@@ -11,7 +11,12 @@ function usage() {
     fmt_reset="$(ansi --reset-attrib)"
 
     >&2 echo
-    >&2 echo "Usage: $0 <tmux-resurrect-file-filepath>"
+    >&2 echo "Usage: $0 <action> <tmux-resurrect-file-filepath>"
+    >&2 echo
+    >&2 echo "    ${fmt_bold}<action>${fmt_reset}"
+    >&2 echo "        What action should happen."
+    >&2 echo "        Options are:"
+    >&2 echo "            build - build layout (sessions, windows, panes)"
     >&2 echo
     >&2 echo "    ${fmt_bold}<tmux-resurrect-file-filepath>${fmt_reset}"
     >&2 echo "        Filepath to tmux-resurrect file."
@@ -222,21 +227,38 @@ function build_tmux_layout() {
     done
 }
 
-if [[ ${#} -ne 1 ]]; then
+if [[ ${#} -lt 1 ]]; then
     log_error "No parameters passed."
     usage
     terminate
 fi
 
-resurrect_filepath="${1}"
+action="${1}"
 
-if [[ ! -r "${resurrect_filepath}" ]]; then
-    terminate "File [${resurrect_filepath}] is not readable."
-fi
+case "${action}" in
+    build)
+        if [[ ${#} -ne 2 ]]; then
+            log_error "No filepath to resurrect file has been passed."
+            usage
+            terminate
+        fi
 
-declare -A sessions_windows_panes
-declare -A sessions_windows_names
+        resurrect_filepath="${2}"
 
-check_tmux_state
-process_tmux_resurrect_file "${resurrect_filepath}" sessions_windows_panes sessions_windows_names
-build_tmux_layout sessions_windows_panes sessions_windows_names
+        if [[ ! -r "${resurrect_filepath}" ]]; then
+            terminate "File [${resurrect_filepath}] is not readable."
+        fi
+
+        declare -A sessions_windows_panes
+        declare -A sessions_windows_names
+
+        check_tmux_state
+        process_tmux_resurrect_file "${resurrect_filepath}" sessions_windows_panes sessions_windows_names
+        build_tmux_layout sessions_windows_panes sessions_windows_names
+    ;;
+
+
+
+    *)
+        terminate "Unknown action [${action}]."
+esac
