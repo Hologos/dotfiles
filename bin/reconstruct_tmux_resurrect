@@ -8,6 +8,24 @@ function terminate() {
     exit 1
 }
 
+function usage() {
+    # shellcheck disable=SC2155
+    fmt_bold="$(ansi --bold --no-restore)"
+    # shellcheck disable=SC2155
+    fmt_underline="$(ansi --underline --no-restore)"
+    # shellcheck disable=SC2155
+    fmt_reset="$(ansi --reset-attrib)"
+
+    >&2 echo
+    >&2 echo "Usage: $0 <tmux-resurrect-file-filepath>"
+    >&2 echo
+    >&2 echo "    ${fmt_bold}<tmux-resurrect-file-filepath>${fmt_reset}"
+    >&2 echo "        Filepath to tmux-resurrect file."
+    >&2 echo
+    >&2 echo "${fmt_underline}Environment variables${fmt_reset}"
+    >&2 echo "    ${fmt_bold}DEBUG${fmt_reset} - where to print debug messages (DEBUG=1 to print debug messages, DEBUG=2 to print trace messages)"
+}
+
 function remove_first_char() {
     echo "$1" | cut -c2-
 }
@@ -196,21 +214,7 @@ function build_tmux_layout() {
 }
 
 if [[ ${#} -ne 1 ]]; then
-    # shellcheck disable=SC2155
-    fmt_bold="$(ansi --bold --no-restore)"
-    # shellcheck disable=SC2155
-    fmt_underline="$(ansi --underline --no-restore)"
-    # shellcheck disable=SC2155
-    fmt_reset="$(ansi --reset-attrib)"
-
-    >&2 echo
-    >&2 echo "Usage: $0 <tmux-resurrect-file-filepath>"
-    >&2 echo
-    >&2 echo "    ${fmt_bold}<tmux-resurrect-file-filepath>${fmt_reset}"
-    >&2 echo "        Filepath to tmux-resurrect file."
-    >&2 echo
-    >&2 echo "${fmt_underline}Environment variables${fmt_reset}"
-    >&2 echo "    ${fmt_bold}DEBUG${fmt_reset} - where to print debug messages (DEBUG=1 to print debug messages, DEBUG=2 to print trace messages)"
+    usage
     exit 1
 fi
 
