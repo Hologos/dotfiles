@@ -55,6 +55,146 @@ function check_tmux_state() {
     fi
 }
 
+function process_tmux_resurrect_file() {
+    local resurrect_filepath="${1}"
+    local -n sessions_windows_panes="${2}"
+    local -n sessions_windows_names="${3}"
+
+    while IFS=$'\t' read -r type rest_of_the_line; do
+        case "${type}" in
+            window)
+                while IFS=$'\t' read -r session_name window_index window_name rest; do
+                    if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
+                        echo "-- window"
+                        echo "session_name=${session_name}"
+                        echo "window_index=${window_index}"
+                        echo "window_name=${window_name}"
+                        echo "rest=${rest}"
+                        echo
+                        echo
+                    fi
+
+                    store_window_name_with_index \
+                        sessions_windows_names \
+                        "${session_name}" \
+                        "${window_index}" \
+                        "${window_name}"
+                done <<< "${rest_of_the_line}"
+            ;;
+
+            pane)
+                while IFS=$'\t' read -r session_name window_index window_active window_flags pane_index pane_title dir rest; do
+                    dir="$(remove_first_char "${dir}")"
+                    if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
+                        echo "-- pane"
+                        echo "session_name=${session_name}"
+                        echo "window_index=${window_index}"
+                        echo "window_active=${window_active}"
+                        echo "window_flags=${window_flags}"
+                        echo "pane_index=${pane_index}"
+                        echo "pane_title=${pane_title}"
+                        echo "dir=${dir}"
+                        echo "rest=${rest}"
+                        echo
+                        echo
+                    fi
+
+                    store_session_window_pane \
+                        sessions_windows_panes \
+                        "${session_name}" \
+                        "${window_index}" \
+                        "${pane_index}" \
+                        "${pane_title}|${dir}"
+                done <<< "${rest_of_the_line}"
+            ;;
+
+            *)
+                if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
+                    echo "unknown: ${type}"
+                fi
+        esac
+    done < "${resurrect_filepath}"
+}
+
+function build_tmux_layout() {
+    local -n sessions_windows_panes="${1}"
+    local -n sessions_windows_names="${2}"
+
+    local last_session_name=""
+    local last_window_index=""
+    local last_pane_name=""
+    echo
+    echo
+
+    if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 2 ]]; then
+        set -x
+    fi
+
+    for key in $(printf "%s\n" "${!sessions_windows_panes[@]}" | sort -t'|' -k1,1 -k2,2n -k3,3n); do
+        session_name="$(echo "${key}" | cut -d'|' -f1)"
+        window_index="$(echo "${key}" | cut -d'|' -f2)"
+        pane_index="$(echo "${key}" | cut -d'|' -f3)"
+        window_name="$(remove_first_char "${sessions_windows_names[${session_name}|${window_index}]}")"
+        pane_name="$(echo "${sessions_windows_panes[$key]}" | cut -d'|' -f1)"
+        pane_dir="$(echo "${sessions_windows_panes[$key]}" | cut -d'|' -f2)"
+
+        if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
+            echo "key: ${key}"
+        fi
+
+        if [[ "${last_session_name}" == "" ]] && \
+        [[ "${last_window_index}" == "" ]] &&
+        [[ "${last_pane_name}" == "" ]]; then
+            # rename window and pane
+            last_session_name="${session_name}"
+            last_window_index="${window_index}"
+            last_pane_name="${pane_name}"
+
+            echo "session: ${session_name}"
+            echo "  window: ${window_name}"
+            echo "    pane: ${pane_name} -> ${pane_dir}"
+
+            tmux rename-window -t "${session_name}:1" "${window_name}"
+            tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}.1"
+            tmux send-keys -t "${session_name}:${window_index}.1" "command cd ${pane_dir}" C-m
+        fi
+
+        if [[ "${session_name}" != "${last_session_name}" ]]; then
+            last_session_name="${session_name}"
+            last_window_index="${window_index}"
+            last_pane_name="${pane_name}"
+
+            echo "session: ${session_name}"
+            echo "  window: ${window_name}"
+            echo "    pane: ${pane_name} -> ${pane_dir}"
+
+            tmux new-session -d -s "${session_name}" -n "${window_name}" -c "${pane_dir}"
+            tmux rename-window -t "${session_name}:1" "${window_name}"
+            tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}.1"
+        fi
+
+        if [[ "${window_index}" != "${last_window_index}" ]]; then
+            last_window_index="${window_index}"
+            last_pane_name="${pane_name}"
+
+            echo "  window: ${window_name}"
+            echo "    pane: ${pane_name} -> ${pane_dir}"
+
+            tmux new-window -t "${session_name}:${window_index}" -n "${window_name}" -c "${pane_dir}"
+            tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}.1"
+        fi
+
+        if [[ "${pane_name}" != "${last_pane_name}" ]]; then
+            last_pane_name="${pane_name}"
+            echo "    pane: ${pane_name} -> ${pane_dir}"
+
+            tmux split-window -t "${session_name}:${window_index}" -c "${pane_dir} -f"
+            tmux select-layout -t "${session_name}:${window_index}" tiled
+            tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}".+
+        fi
+    done
+}
+
 if [[ ${#} -ne 1 ]]; then
     # shellcheck disable=SC2155
     fmt_bold="$(ansi --bold --no-restore)"
@@ -80,136 +220,9 @@ if [[ ! -r "${resurrect_filepath}" ]]; then
     terminate "File [${resurrect_filepath}] is not readable."
 fi
 
-check_tmux_state
-
 declare -A sessions_windows_panes
 declare -A sessions_windows_names
 
-while IFS=$'\t' read -r type rest_of_the_line; do
-    case "${type}" in
-        window)
-            while IFS=$'\t' read -r session_name window_index window_name rest; do
-                if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
-                    echo "-- window"
-                    echo "session_name=${session_name}"
-                    echo "window_index=${window_index}"
-                    echo "window_name=${window_name}"
-                    echo "rest=${rest}"
-                    echo
-                    echo
-                fi
-
-                store_window_name_with_index \
-                    sessions_windows_names \
-                    "${session_name}" \
-                    "${window_index}" \
-                    "${window_name}"
-            done <<< "${rest_of_the_line}"
-        ;;
-
-        pane)
-            while IFS=$'\t' read -r session_name window_index window_active window_flags pane_index pane_title dir rest; do
-                dir="$(remove_first_char "${dir}")"
-                if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
-                    echo "-- pane"
-                    echo "session_name=${session_name}"
-                    echo "window_index=${window_index}"
-                    echo "window_active=${window_active}"
-                    echo "window_flags=${window_flags}"
-                    echo "pane_index=${pane_index}"
-                    echo "pane_title=${pane_title}"
-                    echo "dir=${dir}"
-                    echo "rest=${rest}"
-                    echo
-                    echo
-                fi
-
-                store_session_window_pane \
-                    sessions_windows_panes \
-                    "${session_name}" \
-                    "${window_index}" \
-                    "${pane_index}" \
-                    "${pane_title}|${dir}"
-            done <<< "${rest_of_the_line}"
-        ;;
-
-        *)
-            if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
-                echo "unknown: ${type}"
-            fi
-    esac
-done < "${resurrect_filepath}"
-
-last_session_name=""
-last_window_index=""
-last_pane_name=""
-echo
-echo
-
-if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 2 ]]; then
-    set -x
-fi
-
-for key in $(printf "%s\n" "${!sessions_windows_panes[@]}" | sort -t'|' -k1,1 -k2,2n -k3,3n); do
-    session_name="$(echo "${key}" | cut -d'|' -f1)"
-    window_index="$(echo "${key}" | cut -d'|' -f2)"
-    pane_index="$(echo "${key}" | cut -d'|' -f3)"
-    window_name="$(remove_first_char "${sessions_windows_names[${session_name}|${window_index}]}")"
-    pane_name="$(echo "${sessions_windows_panes[$key]}" | cut -d'|' -f1)"
-    pane_dir="$(echo "${sessions_windows_panes[$key]}" | cut -d'|' -f2)"
-
-    if [[ -v DEBUG ]] && [[ ${DEBUG} -eq 1 ]]; then
-        echo "key: ${key}"
-    fi
-
-    if [[ "${last_session_name}" == "" ]] && \
-       [[ "${last_window_index}" == "" ]] &&
-       [[ "${last_pane_name}" == "" ]]; then
-        # rename window and pane
-        last_session_name="${session_name}"
-        last_window_index="${window_index}"
-        last_pane_name="${pane_name}"
-
-        echo "session: ${session_name}"
-        echo "  window: ${window_name}"
-        echo "    pane: ${pane_name} -> ${pane_dir}"
-
-        tmux rename-window -t "${session_name}:1" "${window_name}"
-        tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}.1"
-        tmux send-keys -t "${session_name}:${window_index}.1" "command cd ${pane_dir}" C-m
-    fi
-
-    if [[ "${session_name}" != "${last_session_name}" ]]; then
-        last_session_name="${session_name}"
-        last_window_index="${window_index}"
-        last_pane_name="${pane_name}"
-
-        echo "session: ${session_name}"
-        echo "  window: ${window_name}"
-        echo "    pane: ${pane_name} -> ${pane_dir}"
-
-        tmux new-session -d -s "${session_name}" -n "${window_name}" -c "${pane_dir}"
-        tmux rename-window -t "${session_name}:1" "${window_name}"
-        tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}.1"
-    fi
-
-    if [[ "${window_index}" != "${last_window_index}" ]]; then
-        last_window_index="${window_index}"
-        last_pane_name="${pane_name}"
-
-        echo "  window: ${window_name}"
-        echo "    pane: ${pane_name} -> ${pane_dir}"
-
-        tmux new-window -t "${session_name}:${window_index}" -n "${window_name}" -c "${pane_dir}"
-        tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}.1"
-    fi
-
-    if [[ "${pane_name}" != "${last_pane_name}" ]]; then
-        last_pane_name="${pane_name}"
-        echo "    pane: ${pane_name} -> ${pane_dir}"
-
-        tmux split-window -t "${session_name}:${window_index}" -c "${pane_dir} -f"
-        tmux select-layout -t "${session_name}:${window_index}" tiled
-        tmux select-pane -T "${pane_name}" -t "${session_name}:${window_index}".+
-    fi
-done
+check_tmux_state
+process_tmux_resurrect_file "${resurrect_filepath}" sessions_windows_panes sessions_windows_names
+build_tmux_layout sessions_windows_panes sessions_windows_names
