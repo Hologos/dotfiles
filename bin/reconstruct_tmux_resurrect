@@ -31,7 +31,7 @@ function store_window_name_with_index() {
     array_ref["${session_name}|${window_index}"]="${window_name}"
 }
 
-function check_init_state() {
+function check_tmux_state() {
     # Make sure we are inside tmux
     if [[ -z "${TMUX:-}" ]]; then
         terminate "Not inside tmux. Terminating..."
@@ -80,7 +80,7 @@ if [[ ! -r "${resurrect_filepath}" ]]; then
     terminate "File [${resurrect_filepath}] is not readable."
 fi
 
-check_init_state
+check_tmux_state
 
 declare -A sessions_windows_panes
 declare -A sessions_windows_names
