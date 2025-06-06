@@ -2,12 +2,6 @@
 
 set -euo pipefail
 
-function terminate() {
-    >&2 echo
-    >&2 echo "${1}"
-    exit 1
-}
-
 function usage() {
     # shellcheck disable=SC2155
     fmt_bold="$(ansi --bold --no-restore)"
@@ -24,6 +18,21 @@ function usage() {
     >&2 echo
     >&2 echo "${fmt_underline}Environment variables${fmt_reset}"
     >&2 echo "    ${fmt_bold}DEBUG${fmt_reset} - where to print debug messages (DEBUG=1 to print debug messages, DEBUG=2 to print trace messages)"
+}
+
+function log_error() {
+    >&2 echo
+    >&2 echo "${1}"
+}
+
+function terminate() {
+    local message="${1}"
+
+    if [[ "${message}" != "" ]]; then
+        log_error "${message}"
+    fi
+
+    exit 1
 }
 
 function remove_first_char() {
@@ -214,8 +223,9 @@ function build_tmux_layout() {
 }
 
 if [[ ${#} -ne 1 ]]; then
+    log_error "No parameters passed."
     usage
-    exit 1
+    terminate
 fi
 
 resurrect_filepath="${1}"
