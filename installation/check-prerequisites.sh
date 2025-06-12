@@ -32,6 +32,22 @@ case "${DOTFILES_OS}" in
     ;;
 esac
 
+
+if [[ -e "${HOME}/.bashrc" ]]; then
+    # check-if .bashrc exists and if so, what's the path (this has be inside .bashrc PATH="/opt/homebrew/bin:$(command -p getconf PATH)")
+    # viz. https://github.com/tmux-plugins/tpm/issues/174
+    # shellcheck disable=SC2016
+    if ! grep 'PATH="/opt/homebrew/bin:$(command -p getconf PATH)"' "${HOME}/.bashrc" &> /dev/null; then
+        prerequisites_error=1
+        fail ".bashrc is not set up correctly (https://github.com/tmux-plugins/tpm/issues/174)"
+    else
+        success ".bashrc is set up correctly"
+    fi
+else
+    prerequisites_error=1
+    fail ".bashrc doesn't exist"
+fi
+
 if [[ ${prerequisites_error} -ne 0 ]]; then
     fail "prerequisites are not met, aborting"
     exit 1
