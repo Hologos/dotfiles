@@ -9,7 +9,9 @@
     case "${DOTFILES_OS}" in
         "${DOTFILES_OS_MACOS}")
             # shellcheck disable=SC1091
-            [[ -f "${HOME}/.fzf.zsh" ]] && source "${HOME}/.fzf.zsh"
+            # [[ -f "${HOME}/.fzf.zsh" ]] && source "${HOME}/.fzf.zsh"
+            # nejspíše nahrazeno v aktuální verzi
+            source <(fzf --zsh)
         ;;
 
         "${DOTFILES_OS_LINUX}")
