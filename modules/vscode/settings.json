@@ -60,5 +60,6 @@
     "workbench.colorTheme": "Visual Studio Dark",
     "git.openRepositoryInParentFolders": "never",
     "asciidoc.extensions.enableKroki": true,
-    "print.krokiUrl": "http://localhost:8090"
+    "print.krokiUrl": "http://localhost:8090",
+    "workbench.secondarySideBar.defaultVisibility": "hidden"
 }
