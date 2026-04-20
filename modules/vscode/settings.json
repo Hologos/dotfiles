@@ -62,5 +62,6 @@
     "asciidoc.extensions.enableKroki": true,
     "print.krokiUrl": "http://localhost:8090",
     "workbench.secondarySideBar.defaultVisibility": "hidden",
-    "cSpell.language": "en,cs"
+    "cSpell.language": "en,cs",
+    "chat.disableAIFeatures": true
 }
