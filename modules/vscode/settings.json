@@ -11,7 +11,7 @@
     "explorer.confirmDragAndDrop": false,
     "explorer.openEditors.visible": 0,
 
-    "extensions.autoUpdate": false,
+    "extensions.autoUpdate": "off",
     "extensions.ignoreRecommendations": true,
     "workbench.sideBar.location": "left",
     "workbench.startupEditor": "newUntitledFile",
