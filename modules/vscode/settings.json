@@ -63,5 +63,9 @@
     "print.krokiUrl": "http://localhost:8090",
     "workbench.secondarySideBar.defaultVisibility": "hidden",
     "cSpell.language": "en,cs",
-    "chat.disableAIFeatures": true
+    "chat.disableAIFeatures": true,
+    "editor.unicodeHighlight.allowedLocales": {
+        "cs": true
+    },
+    "editor.unicodeHighlight.nonBasicASCII": false
 }
